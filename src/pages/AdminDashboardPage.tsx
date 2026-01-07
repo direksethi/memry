@@ -15,6 +15,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   Loader2,
@@ -23,16 +30,17 @@ import {
   Pencil,
   Trash2,
   BookOpen,
-  Image,
+  Palette,
   FileText,
   ToggleLeft,
   ToggleRight,
   Home,
   RefreshCw,
+  FolderOpen,
 } from "lucide-react";
 import type { Id } from "../../convex/_generated/dataModel";
 
-type Tab = "bookTypes" | "pageOptions" | "coverDesigns";
+type Tab = "bookTypes" | "pageOptions" | "themeCategories" | "themes";
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
@@ -72,12 +80,19 @@ export function AdminDashboardPage() {
   const deletePageOption = useMutation(api.pageOptions.remove);
   const togglePageOptionActive = useMutation(api.pageOptions.toggleActive);
 
-  // Cover Designs
-  const coverDesigns = useQuery(api.coverDesigns.listAll);
-  const createCoverDesign = useMutation(api.coverDesigns.create);
-  const updateCoverDesign = useMutation(api.coverDesigns.update);
-  const deleteCoverDesign = useMutation(api.coverDesigns.remove);
-  const toggleCoverDesignActive = useMutation(api.coverDesigns.toggleActive);
+  // Theme Categories
+  const themeCategories = useQuery(api.themeCategories.listAll);
+  const createThemeCategory = useMutation(api.themeCategories.create);
+  const updateThemeCategory = useMutation(api.themeCategories.update);
+  const deleteThemeCategory = useMutation(api.themeCategories.remove);
+  const toggleThemeCategoryActive = useMutation(api.themeCategories.toggleActive);
+
+  // Themes
+  const themes = useQuery(api.themes.listAll);
+  const createTheme = useMutation(api.themes.create);
+  const updateTheme = useMutation(api.themes.update);
+  const deleteTheme = useMutation(api.themes.remove);
+  const toggleThemeActive = useMutation(api.themes.toggleActive);
 
   // Seed data
   const seedData = useMutation(api.seed.seedInitialData);
@@ -85,13 +100,15 @@ export function AdminDashboardPage() {
   // Dialog states
   const [showBookTypeDialog, setShowBookTypeDialog] = useState(false);
   const [showPageOptionDialog, setShowPageOptionDialog] = useState(false);
-  const [showCoverDesignDialog, setShowCoverDesignDialog] = useState(false);
+  const [showThemeCategoryDialog, setShowThemeCategoryDialog] = useState(false);
+  const [showThemeDialog, setShowThemeDialog] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form states
   const [bookTypeForm, setBookTypeForm] = useState({
     name: "",
     aspectRatio: "3:4",
+    description: "",
     price: 0,
     imageUrl: "",
     isActive: true,
@@ -105,9 +122,17 @@ export function AdminDashboardPage() {
     order: 1,
   });
 
-  const [coverDesignForm, setCoverDesignForm] = useState({
+  const [themeCategoryForm, setThemeCategoryForm] = useState({
     name: "",
-    imageUrl: "",
+    description: "",
+    isActive: true,
+    order: 1,
+  });
+
+  const [themeForm, setThemeForm] = useState({
+    categoryId: "" as string,
+    name: "",
+    coverImageUrl: "",
     isActive: true,
     order: 1,
   });
@@ -135,6 +160,7 @@ export function AdminDashboardPage() {
       setBookTypeForm({
         name: bookType.name,
         aspectRatio: bookType.aspectRatio,
+        description: bookType.description || "",
         price: bookType.price,
         imageUrl: bookType.imageUrl,
         isActive: bookType.isActive,
@@ -145,6 +171,7 @@ export function AdminDashboardPage() {
       setBookTypeForm({
         name: "",
         aspectRatio: "3:4",
+        description: "",
         price: 0,
         imageUrl: "",
         isActive: true,
@@ -228,53 +255,121 @@ export function AdminDashboardPage() {
     }
   };
 
-  // Cover Design handlers
-  const openCoverDesignDialog = (
-    coverDesign?: NonNullable<typeof coverDesigns>[0],
+  // Theme Category handlers
+  const openThemeCategoryDialog = (
+    category?: NonNullable<typeof themeCategories>[0],
   ) => {
-    if (coverDesign) {
-      setEditingId(coverDesign._id);
-      setCoverDesignForm({
-        name: coverDesign.name,
-        imageUrl: coverDesign.imageUrl,
-        isActive: coverDesign.isActive,
-        order: coverDesign.order,
+    if (category) {
+      setEditingId(category._id);
+      setThemeCategoryForm({
+        name: category.name,
+        description: category.description || "",
+        isActive: category.isActive,
+        order: category.order,
       });
     } else {
       setEditingId(null);
-      setCoverDesignForm({
+      setThemeCategoryForm({
         name: "",
-        imageUrl: "",
+        description: "",
         isActive: true,
-        order: (coverDesigns?.length || 0) + 1,
+        order: (themeCategories?.length || 0) + 1,
       });
     }
-    setShowCoverDesignDialog(true);
+    setShowThemeCategoryDialog(true);
   };
 
-  const saveCoverDesign = async () => {
+  const saveThemeCategory = async () => {
     setIsLoading(true);
     try {
       if (editingId) {
-        await updateCoverDesign({
-          id: editingId as Id<"coverDesigns">,
-          ...coverDesignForm,
+        await updateThemeCategory({
+          id: editingId as Id<"themeCategories">,
+          ...themeCategoryForm,
         });
       } else {
-        await createCoverDesign(coverDesignForm);
+        await createThemeCategory(themeCategoryForm);
       }
-      setShowCoverDesignDialog(false);
+      setShowThemeCategoryDialog(false);
     } catch (error) {
-      console.error("Failed to save cover design:", error);
+      console.error("Failed to save theme category:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteCoverDesign = async (id: Id<"coverDesigns">) => {
-    if (confirm("Are you sure you want to delete this cover design?")) {
-      await deleteCoverDesign({ id });
+  const handleDeleteThemeCategory = async (id: Id<"themeCategories">) => {
+    if (confirm("Are you sure you want to delete this theme category? This will also affect all themes in this category.")) {
+      await deleteThemeCategory({ id });
     }
+  };
+
+  // Theme handlers
+  const openThemeDialog = (theme?: NonNullable<typeof themes>[0]) => {
+    if (theme) {
+      setEditingId(theme._id);
+      setThemeForm({
+        categoryId: theme.categoryId,
+        name: theme.name,
+        coverImageUrl: theme.coverImageUrl,
+        isActive: theme.isActive,
+        order: theme.order,
+      });
+    } else {
+      setEditingId(null);
+      setThemeForm({
+        categoryId: themeCategories?.[0]?._id || "",
+        name: "",
+        coverImageUrl: "",
+        isActive: true,
+        order: (themes?.length || 0) + 1,
+      });
+    }
+    setShowThemeDialog(true);
+  };
+
+  const saveTheme = async () => {
+    if (!themeForm.categoryId) {
+      alert("Please select a category");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      if (editingId) {
+        await updateTheme({
+          id: editingId as Id<"themes">,
+          categoryId: themeForm.categoryId as Id<"themeCategories">,
+          name: themeForm.name,
+          coverImageUrl: themeForm.coverImageUrl,
+          isActive: themeForm.isActive,
+          order: themeForm.order,
+        });
+      } else {
+        await createTheme({
+          categoryId: themeForm.categoryId as Id<"themeCategories">,
+          name: themeForm.name,
+          coverImageUrl: themeForm.coverImageUrl,
+          isActive: themeForm.isActive,
+          order: themeForm.order,
+        });
+      }
+      setShowThemeDialog(false);
+    } catch (error) {
+      console.error("Failed to save theme:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTheme = async (id: Id<"themes">) => {
+    if (confirm("Are you sure you want to delete this theme?")) {
+      await deleteTheme({ id });
+    }
+  };
+
+  // Get category name helper
+  const getCategoryName = (categoryId: Id<"themeCategories">) => {
+    return themeCategories?.find((c) => c._id === categoryId)?.name || "Unknown";
   };
 
   if (!isAuthenticated) {
@@ -347,12 +442,20 @@ export function AdminDashboardPage() {
               Page Options
             </Button>
             <Button
-              variant={activeTab === "coverDesigns" ? "default" : "outline"}
-              onClick={() => setActiveTab("coverDesigns")}
+              variant={activeTab === "themeCategories" ? "default" : "outline"}
+              onClick={() => setActiveTab("themeCategories")}
               className="whitespace-nowrap"
             >
-              <Image className="w-4 h-4 mr-2" />
-              Cover Designs
+              <FolderOpen className="w-4 h-4 mr-2" />
+              Theme Categories
+            </Button>
+            <Button
+              variant={activeTab === "themes" ? "default" : "outline"}
+              onClick={() => setActiveTab("themes")}
+              className="whitespace-nowrap"
+            >
+              <Palette className="w-4 h-4 mr-2" />
+              Themes
             </Button>
           </div>
 
@@ -400,7 +503,7 @@ export function AdminDashboardPage() {
                           <div>
                             <h3 className="font-semibold">{bookType.name}</h3>
                             <p className="text-sm text-muted-foreground">
-                              {bookType.aspectRatio} • $
+                              {bookType.aspectRatio} • ฿
                               {bookType.price.toFixed(2)}
                             </p>
                           </div>
@@ -474,7 +577,7 @@ export function AdminDashboardPage() {
                           </h3>
                           <p className="text-sm text-muted-foreground">
                             {pageOption.additionalPrice > 0
-                              ? `+$${pageOption.additionalPrice.toFixed(2)}`
+                              ? `+฿${pageOption.additionalPrice.toFixed(2)}`
                               : "Base option"}
                           </p>
                           <span
@@ -527,38 +630,123 @@ export function AdminDashboardPage() {
             </div>
           )}
 
-          {/* Cover Designs Tab */}
-          {activeTab === "coverDesigns" && (
+          {/* Theme Categories Tab */}
+          {activeTab === "themeCategories" && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Cover Designs</h2>
-                <Button onClick={() => openCoverDesignDialog()}>
+                <h2 className="text-lg font-semibold">Theme Categories</h2>
+                <Button onClick={() => openThemeCategoryDialog()}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Cover Design
+                  Add Category
                 </Button>
               </div>
 
-              {coverDesigns === undefined ? (
+              {themeCategories === undefined ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
-              ) : coverDesigns.length === 0 ? (
+              ) : themeCategories.length === 0 ? (
                 <Card className="p-8 text-center">
                   <p className="text-muted-foreground">
-                    No cover designs yet. Add your first one!
+                    No theme categories yet. Add categories like "Weddings", "Travel", "Birthdays".
+                  </p>
+                </Card>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {themeCategories.map((category) => (
+                    <Card key={category._id} className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-lg">
+                            {category.name}
+                          </h3>
+                          {category.description && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {category.description}
+                            </p>
+                          )}
+                          <span
+                            className={cn(
+                              "inline-block mt-2 text-xs px-2 py-1 rounded-full",
+                              category.isActive
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-600",
+                            )}
+                          >
+                            {category.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              toggleThemeCategoryActive({ id: category._id })
+                            }
+                          >
+                            {category.isActive ? (
+                              <ToggleRight className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <ToggleLeft className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openThemeCategoryDialog(category)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              handleDeleteThemeCategory(category._id)
+                            }
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Themes Tab */}
+          {activeTab === "themes" && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Themes</h2>
+                <Button onClick={() => openThemeDialog()}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Theme
+                </Button>
+              </div>
+
+              {themes === undefined ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : themes.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">
+                    No themes yet. First create categories, then add themes like "Paris", "Bangkok" under "Travel".
                   </p>
                 </Card>
               ) : (
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                  {coverDesigns.map((coverDesign) => (
-                    <Card key={coverDesign._id} className="overflow-hidden">
+                  {themes.map((theme) => (
+                    <Card key={theme._id} className="overflow-hidden">
                       <div className="aspect-square relative">
                         <img
-                          src={coverDesign.imageUrl}
-                          alt={coverDesign.name}
+                          src={theme.coverImageUrl}
+                          alt={theme.name}
                           className="w-full h-full object-cover"
                         />
-                        {!coverDesign.isActive && (
+                        {!theme.isActive && (
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                             <span className="text-white text-sm font-medium">
                               Inactive
@@ -567,44 +755,47 @@ export function AdminDashboardPage() {
                         )}
                       </div>
                       <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
                           <h3 className="font-medium text-sm truncate">
-                            {coverDesign.name}
+                            {theme.name}
                           </h3>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() =>
-                                toggleCoverDesignActive({ id: coverDesign._id })
-                              }
-                            >
-                              {coverDesign.isActive ? (
-                                <ToggleRight className="w-4 h-4 text-green-600" />
-                              ) : (
-                                <ToggleLeft className="w-4 h-4 text-muted-foreground" />
-                              )}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => openCoverDesignDialog(coverDesign)}
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() =>
-                                handleDeleteCoverDesign(coverDesign._id)
-                              }
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {getCategoryName(theme.categoryId)}
+                          </p>
+                        </div>
+                        <div className="flex gap-1 mt-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() =>
+                              toggleThemeActive({ id: theme._id })
+                            }
+                          >
+                            {theme.isActive ? (
+                              <ToggleRight className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <ToggleLeft className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => openThemeDialog(theme)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() =>
+                              handleDeleteTheme(theme._id)
+                            }
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -655,7 +846,7 @@ export function AdminDashboardPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">Price (฿)</Label>
                 <Input
                   id="price"
                   type="number"
@@ -669,6 +860,17 @@ export function AdminDashboardPage() {
                   }
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={bookTypeForm.description}
+                onChange={(e) =>
+                  setBookTypeForm({ ...bookTypeForm, description: e.target.value })
+                }
+                placeholder="e.g., Perfect for portraits"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="imageUrl">Image URL</Label>
@@ -744,7 +946,7 @@ export function AdminDashboardPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="additionalPrice">Additional Price ($)</Label>
+              <Label htmlFor="additionalPrice">Additional Price (฿)</Label>
               <Input
                 id="additionalPrice"
                 type="number"
@@ -791,58 +993,55 @@ export function AdminDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Cover Design Dialog */}
+      {/* Theme Category Dialog */}
       <Dialog
-        open={showCoverDesignDialog}
-        onOpenChange={setShowCoverDesignDialog}
+        open={showThemeCategoryDialog}
+        onOpenChange={setShowThemeCategoryDialog}
       >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingId ? "Edit Cover Design" : "Add Cover Design"}
+              {editingId ? "Edit Theme Category" : "Add Theme Category"}
             </DialogTitle>
             <DialogDescription>
-              Configure the cover design settings below.
+              Categories group themes together (e.g., Weddings, Travel, Birthdays).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="coverName">Name</Label>
+              <Label htmlFor="categoryName">Name</Label>
               <Input
-                id="coverName"
-                value={coverDesignForm.name}
+                id="categoryName"
+                value={themeCategoryForm.name}
                 onChange={(e) =>
-                  setCoverDesignForm({
-                    ...coverDesignForm,
-                    name: e.target.value,
-                  })
+                  setThemeCategoryForm({ ...themeCategoryForm, name: e.target.value })
                 }
-                placeholder="e.g., Classic White"
+                placeholder="e.g., Travel"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="coverImageUrl">Image URL</Label>
+              <Label htmlFor="categoryDescription">Description</Label>
               <Input
-                id="coverImageUrl"
-                value={coverDesignForm.imageUrl}
+                id="categoryDescription"
+                value={themeCategoryForm.description}
                 onChange={(e) =>
-                  setCoverDesignForm({
-                    ...coverDesignForm,
-                    imageUrl: e.target.value,
+                  setThemeCategoryForm({
+                    ...themeCategoryForm,
+                    description: e.target.value,
                   })
                 }
-                placeholder="https://..."
+                placeholder="e.g., Capture your adventures"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="coverOrder">Display Order</Label>
+              <Label htmlFor="categoryOrder">Display Order</Label>
               <Input
-                id="coverOrder"
+                id="categoryOrder"
                 type="number"
-                value={coverDesignForm.order}
+                value={themeCategoryForm.order}
                 onChange={(e) =>
-                  setCoverDesignForm({
-                    ...coverDesignForm,
+                  setThemeCategoryForm({
+                    ...themeCategoryForm,
                     order: parseInt(e.target.value) || 1,
                   })
                 }
@@ -852,11 +1051,98 @@ export function AdminDashboardPage() {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowCoverDesignDialog(false)}
+              onClick={() => setShowThemeCategoryDialog(false)}
             >
               Cancel
             </Button>
-            <Button onClick={saveCoverDesign} disabled={isLoading}>
+            <Button onClick={saveThemeCategory} disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Theme Dialog */}
+      <Dialog open={showThemeDialog} onOpenChange={setShowThemeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingId ? "Edit Theme" : "Add Theme"}
+            </DialogTitle>
+            <DialogDescription>
+              Themes have pre-designed covers (e.g., Paris, Bangkok under Travel).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="themeCategory">Category</Label>
+              <Select
+                value={themeForm.categoryId}
+                onValueChange={(value) =>
+                  setThemeForm({ ...themeForm, categoryId: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {themeCategories?.map((category) => (
+                    <SelectItem key={category._id} value={category._id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="themeName">Name</Label>
+              <Input
+                id="themeName"
+                value={themeForm.name}
+                onChange={(e) =>
+                  setThemeForm({ ...themeForm, name: e.target.value })
+                }
+                placeholder="e.g., Paris"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="coverImageUrl">Cover Image URL</Label>
+              <Input
+                id="coverImageUrl"
+                value={themeForm.coverImageUrl}
+                onChange={(e) =>
+                  setThemeForm({ ...themeForm, coverImageUrl: e.target.value })
+                }
+                placeholder="https://..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="themeOrder">Display Order</Label>
+              <Input
+                id="themeOrder"
+                type="number"
+                value={themeForm.order}
+                onChange={(e) =>
+                  setThemeForm({
+                    ...themeForm,
+                    order: parseInt(e.target.value) || 1,
+                  })
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowThemeDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={saveTheme} disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (

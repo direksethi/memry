@@ -1,4 +1,5 @@
 import { mutation } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 
 // Seed initial data for the application
 export const seedInitialData = mutation({
@@ -62,48 +63,41 @@ export const seedInitialData = mutation({
       await ctx.db.insert("pageOptions", pageOption);
     }
 
-    // Seed cover designs
-    const coverDesigns = [
-      {
-        name: "Classic White",
-        imageUrl: "https://images.unsplash.com/photo-1553484771-371a605b060b?w=400&h=400&fit=crop",
-        isActive: true,
-        order: 1,
-      },
-      {
-        name: "Elegant Black",
-        imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=400&fit=crop",
-        isActive: true,
-        order: 2,
-      },
-      {
-        name: "Natural Beige",
-        imageUrl: "https://images.unsplash.com/photo-1518893494013-4edb2d6f5f25?w=400&h=400&fit=crop",
-        isActive: true,
-        order: 3,
-      },
-      {
-        name: "Modern Gray",
-        imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=400&fit=crop",
-        isActive: true,
-        order: 4,
-      },
-      {
-        name: "Rustic Brown",
-        imageUrl: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&h=400&fit=crop",
-        isActive: true,
-        order: 5,
-      },
-      {
-        name: "Minimalist Cream",
-        imageUrl: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400&h=400&fit=crop",
-        isActive: true,
-        order: 6,
-      },
+    // Seed theme categories
+    const themeCategories = [
+      { name: "Weddings", description: "Celebrate your special day", isActive: true, order: 1 },
+      { name: "Travel", description: "Capture your adventures", isActive: true, order: 2 },
+      { name: "Birthdays", description: "Birthday memories", isActive: true, order: 3 },
+      { name: "Family", description: "Family moments", isActive: true, order: 4 },
     ];
 
-    for (const coverDesign of coverDesigns) {
-      await ctx.db.insert("coverDesigns", coverDesign);
+    const categoryIds: Record<string, Id<"themeCategories">> = {};
+    for (const category of themeCategories) {
+      const id = await ctx.db.insert("themeCategories", category);
+      categoryIds[category.name] = id;
+    }
+
+    // Seed themes
+    const themes = [
+      // Wedding themes
+      { categoryId: categoryIds["Weddings"], name: "Classic Romance", coverImageUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=400&fit=crop", isActive: true, order: 1 },
+      { categoryId: categoryIds["Weddings"], name: "Garden Wedding", coverImageUrl: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&h=400&fit=crop", isActive: true, order: 2 },
+      { categoryId: categoryIds["Weddings"], name: "Beach Wedding", coverImageUrl: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=400&h=400&fit=crop", isActive: true, order: 3 },
+      // Travel themes
+      { categoryId: categoryIds["Travel"], name: "Paris", coverImageUrl: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=400&fit=crop", isActive: true, order: 1 },
+      { categoryId: categoryIds["Travel"], name: "Bangkok", coverImageUrl: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=400&h=400&fit=crop", isActive: true, order: 2 },
+      { categoryId: categoryIds["Travel"], name: "Tokyo", coverImageUrl: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=400&fit=crop", isActive: true, order: 3 },
+      { categoryId: categoryIds["Travel"], name: "New York", coverImageUrl: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&h=400&fit=crop", isActive: true, order: 4 },
+      // Birthday themes
+      { categoryId: categoryIds["Birthdays"], name: "Kids Party", coverImageUrl: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=400&fit=crop", isActive: true, order: 1 },
+      { categoryId: categoryIds["Birthdays"], name: "Elegant Celebration", coverImageUrl: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=400&h=400&fit=crop", isActive: true, order: 2 },
+      // Family themes
+      { categoryId: categoryIds["Family"], name: "Family Reunion", coverImageUrl: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&h=400&fit=crop", isActive: true, order: 1 },
+      { categoryId: categoryIds["Family"], name: "Baby's First Year", coverImageUrl: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&h=400&fit=crop", isActive: true, order: 2 },
+    ];
+
+    for (const theme of themes) {
+      await ctx.db.insert("themes", theme);
     }
 
     return { message: "Initial data seeded successfully" };
@@ -141,8 +135,13 @@ export const clearAllData = mutation({
       await ctx.db.delete(item._id);
     }
 
-    const coverDesigns = await ctx.db.query("coverDesigns").collect();
-    for (const item of coverDesigns) {
+    const themeCategories = await ctx.db.query("themeCategories").collect();
+    for (const item of themeCategories) {
+      await ctx.db.delete(item._id);
+    }
+
+    const themes = await ctx.db.query("themes").collect();
+    for (const item of themes) {
       await ctx.db.delete(item._id);
     }
 

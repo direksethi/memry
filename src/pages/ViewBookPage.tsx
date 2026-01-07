@@ -277,8 +277,8 @@ export function ViewBookPage() {
               <BookPage
                 isCover
                 aspectRatio={aspectRatioValue}
-                coverImage={photoBook.coverDesign?.imageUrl}
-                coverTitle={photoBook.bookType?.name}
+                coverImage={photoBook.theme?.coverImageUrl}
+                coverTitle={photoBook.theme?.name}
               />
             </div>
 

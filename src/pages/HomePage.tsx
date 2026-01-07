@@ -4,7 +4,7 @@ import { useOrderStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Check, ChevronRight } from "lucide-react";
+import { Book, BookOpen, Check, ChevronRight } from "lucide-react";
 
 export function HomePage() {
   const bookTypes = useQuery(api.bookTypes.listActive);
@@ -44,6 +44,15 @@ export function HomePage() {
                 Choose Your Book Style
               </span>
             </div>
+          </div>
+
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 mx-auto bg-beige rounded-full flex items-center justify-center">
+              <Book className="w-8 h-8 text-foreground" />
+            </div>
+            <p className="mt-3 text-muted-foreground">
+              How would you like your book?
+            </p>
           </div>
 
           {/* Book Selection */}
@@ -104,11 +113,13 @@ export function HomePage() {
                         <h3 className="font-semibold text-foreground text-lg">
                           {bookType.name}
                         </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Aspect Ratio: {bookType.aspectRatio}
-                        </p>
+                        {bookType.description && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {bookType.description}
+                          </p>
+                        )}
                         <p className="text-xl font-bold text-foreground mt-3">
-                          ${bookType.price.toFixed(2)}
+                          ฿{bookType.price.toFixed(2)}
                         </p>
                       </div>
                     </div>

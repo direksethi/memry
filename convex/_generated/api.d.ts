@@ -10,11 +10,12 @@
 
 import type * as admin from "../admin.js";
 import type * as bookTypes from "../bookTypes.js";
-import type * as coverDesigns from "../coverDesigns.js";
 import type * as files from "../files.js";
 import type * as pageOptions from "../pageOptions.js";
 import type * as photoBooks from "../photoBooks.js";
 import type * as seed from "../seed.js";
+import type * as themeCategories from "../themeCategories.js";
+import type * as themes from "../themes.js";
 
 import type {
   ApiFromModules,
@@ -25,11 +26,12 @@ import type {
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   bookTypes: typeof bookTypes;
-  coverDesigns: typeof coverDesigns;
   files: typeof files;
   pageOptions: typeof pageOptions;
   photoBooks: typeof photoBooks;
   seed: typeof seed;
+  themeCategories: typeof themeCategories;
+  themes: typeof themes;
 }>;
 
 /**

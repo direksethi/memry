@@ -1,47 +1,47 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// Get all active cover designs for customers
+// Get all active theme categories for customers
 export const listActive = query({
   args: {},
   handler: async (ctx) => {
-    const coverDesigns = await ctx.db
-      .query("coverDesigns")
+    const categories = await ctx.db
+      .query("themeCategories")
       .filter((q) => q.eq(q.field("isActive"), true))
       .collect();
-    return coverDesigns.sort((a, b) => a.order - b.order);
+    return categories.sort((a, b) => a.order - b.order);
   },
 });
 
-// Get all cover designs (for admin)
+// Get all theme categories (for admin)
 export const listAll = query({
   args: {},
   handler: async (ctx) => {
-    const coverDesigns = await ctx.db.query("coverDesigns").collect();
-    return coverDesigns.sort((a, b) => a.order - b.order);
+    const categories = await ctx.db.query("themeCategories").collect();
+    return categories.sort((a, b) => a.order - b.order);
   },
 });
 
-// Get a single cover design by ID
+// Get a single theme category by ID
 export const getById = query({
-  args: { id: v.id("coverDesigns") },
+  args: { id: v.id("themeCategories") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
   },
 });
 
-// Create a new cover design (admin only)
+// Create a new theme category (admin only)
 export const create = mutation({
   args: {
     name: v.string(),
-    imageUrl: v.string(),
+    description: v.optional(v.string()),
     isActive: v.boolean(),
     order: v.number(),
   },
   handler: async (ctx, args) => {
-    const id = await ctx.db.insert("coverDesigns", {
+    const id = await ctx.db.insert("themeCategories", {
       name: args.name,
-      imageUrl: args.imageUrl,
+      description: args.description,
       isActive: args.isActive,
       order: args.order,
     });
@@ -49,12 +49,12 @@ export const create = mutation({
   },
 });
 
-// Update a cover design (admin only)
+// Update a theme category (admin only)
 export const update = mutation({
   args: {
-    id: v.id("coverDesigns"),
+    id: v.id("themeCategories"),
     name: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
+    description: v.optional(v.string()),
     isActive: v.optional(v.boolean()),
     order: v.optional(v.number()),
   },
@@ -62,7 +62,7 @@ export const update = mutation({
     const { id, ...updates } = args;
     const existing = await ctx.db.get(id);
     if (!existing) {
-      throw new Error("Cover design not found");
+      throw new Error("Theme category not found");
     }
 
     const filteredUpdates: Partial<typeof existing> = {};
@@ -77,9 +77,9 @@ export const update = mutation({
   },
 });
 
-// Delete a cover design (admin only)
+// Delete a theme category (admin only)
 export const remove = mutation({
-  args: { id: v.id("coverDesigns") },
+  args: { id: v.id("themeCategories") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
   },
@@ -87,11 +87,11 @@ export const remove = mutation({
 
 // Toggle active status
 export const toggleActive = mutation({
-  args: { id: v.id("coverDesigns") },
+  args: { id: v.id("themeCategories") },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Cover design not found");
+      throw new Error("Theme category not found");
     }
     await ctx.db.patch(args.id, { isActive: !existing.isActive });
     return !existing.isActive;

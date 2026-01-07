@@ -12,6 +12,7 @@ export default defineSchema({
   bookTypes: defineTable({
     name: v.string(), // e.g., "Portrait", "Landscape", "Square"
     aspectRatio: v.string(), // e.g., "3:4", "4:3", "1:1"
+    description: v.optional(v.string()), // Description shown to customers
     price: v.number(),
     imageUrl: v.string(),
     isActive: v.boolean(),
@@ -26,20 +27,30 @@ export default defineSchema({
     order: v.number(),
   }),
 
-  // Cover designs available
-  coverDesigns: defineTable({
+  // Theme categories (e.g., Weddings, Birthdays, Travel)
+  themeCategories: defineTable({
     name: v.string(),
-    imageUrl: v.string(),
+    description: v.optional(v.string()),
     isActive: v.boolean(),
     order: v.number(),
   }),
+
+  // Themes within categories (e.g., Paris, Bangkok under Travel)
+  themes: defineTable({
+    categoryId: v.id("themeCategories"),
+    name: v.string(),
+    coverImageUrl: v.string(), // Pre-designed cover image
+    isActive: v.boolean(),
+    order: v.number(),
+  }).index("by_category", ["categoryId"]),
 
   // User photo book orders/projects
   photoBooks: defineTable({
     shareId: v.string(), // Unique ID for sharing
     bookTypeId: v.id("bookTypes"),
     pageOptionId: v.id("pageOptions"),
-    coverDesignId: v.id("coverDesigns"),
+    themeId: v.optional(v.id("themes")), // New theme system
+    coverDesignId: v.optional(v.string()), // Deprecated: kept for backward compatibility
     pages: v.array(
       v.object({
         pageNumber: v.number(),

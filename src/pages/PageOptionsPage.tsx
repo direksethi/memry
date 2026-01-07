@@ -128,23 +128,10 @@ export function PageOptionsPage() {
                           <h3 className="font-semibold text-foreground text-lg">
                             {option.pageCount} Pages
                           </h3>
-                          {option.additionalPrice > 0 ? (
                             <p className="text-sm text-muted-foreground">
-                              +${option.additionalPrice.toFixed(2)} additional
+                              +฿{option.additionalPrice.toFixed(2)}
                             </p>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">
-                              Base option
-                            </p>
-                          )}
                         </div>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-xl font-bold text-foreground">
-                          ${totalPrice.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">total</p>
                       </div>
                     </div>
                   </Card>
@@ -157,7 +144,7 @@ export function PageOptionsPage() {
           {selectedBookType && (
             <div className="mt-6 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                Selected:{" "}
+                Book Style: {" "}
                 <span className="font-medium text-foreground">
                   {selectedBookType.name}
                 </span>
@@ -169,20 +156,31 @@ export function PageOptionsPage() {
 
       {/* Fixed Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-border">
-        <div className="max-w-lg mx-auto flex gap-3">
-          <Button variant="outline" className="h-12 px-6" onClick={prevStep}>
-            <ChevronLeft className="w-5 h-5 mr-1" />
-            Back
-          </Button>
-          <Button
-            className="flex-1 h-12 text-base font-semibold"
-            size="xl"
-            disabled={!selectedPageOptionId}
-            onClick={handleNext}
-          >
-            Next
-            <ChevronRight className="w-5 h-5 ml-2" />
-          </Button>
+        <div className="max-w-lg mx-auto">
+          {/* Total display */}
+          {selectedPageOptionId && pageOptions && (
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-xl font-bold text-foreground">
+                ฿{(basePrice + (pageOptions.find(o => o._id === selectedPageOptionId)?.additionalPrice ?? 0)).toFixed(2)}
+              </span>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <Button variant="outline" className="h-12 px-6" onClick={prevStep}>
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Back
+            </Button>
+            <Button
+              className="flex-1 h-12 text-base font-semibold"
+              size="xl"
+              disabled={!selectedPageOptionId}
+              onClick={handleNext}
+            >
+              Next
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

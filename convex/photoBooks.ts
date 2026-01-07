@@ -57,13 +57,20 @@ export const getByShareId = query({
     // Get related data
     const bookType = await ctx.db.get(photoBook.bookTypeId);
     const pageOption = await ctx.db.get(photoBook.pageOptionId);
-    const coverDesign = await ctx.db.get(photoBook.coverDesignId);
+    let theme = null;
+    let themeCategory = null;
+    if (photoBook.themeId) {
+      theme = await ctx.db.get(photoBook.themeId);
+      if (theme) {
+        themeCategory = await ctx.db.get(theme.categoryId);
+      }
+    }
 
     return {
       ...photoBook,
       bookType,
       pageOption,
-      coverDesign,
+      theme: theme ? { ...theme, category: themeCategory } : null,
     };
   },
 });
@@ -81,13 +88,20 @@ export const getById = query({
     // Get related data
     const bookType = await ctx.db.get(photoBook.bookTypeId);
     const pageOption = await ctx.db.get(photoBook.pageOptionId);
-    const coverDesign = await ctx.db.get(photoBook.coverDesignId);
+    let theme = null;
+    let themeCategory = null;
+    if (photoBook.themeId) {
+      theme = await ctx.db.get(photoBook.themeId);
+      if (theme) {
+        themeCategory = await ctx.db.get(theme.categoryId);
+      }
+    }
 
     return {
       ...photoBook,
       bookType,
       pageOption,
-      coverDesign,
+      theme: theme ? { ...theme, category: themeCategory } : null,
     };
   },
 });
@@ -106,16 +120,16 @@ export const create = mutation({
   args: {
     bookTypeId: v.id("bookTypes"),
     pageOptionId: v.id("pageOptions"),
-    coverDesignId: v.id("coverDesigns"),
+    themeId: v.id("themes"),
   },
   handler: async (ctx, args) => {
     // Verify all referenced entities exist
     const bookType = await ctx.db.get(args.bookTypeId);
     const pageOption = await ctx.db.get(args.pageOptionId);
-    const coverDesign = await ctx.db.get(args.coverDesignId);
+    const theme = await ctx.db.get(args.themeId);
 
-    if (!bookType || !pageOption || !coverDesign) {
-      throw new Error("Invalid book type, page option, or cover design");
+    if (!bookType || !pageOption || !theme) {
+      throw new Error("Invalid book type, page option, or theme");
     }
 
     // Generate initial empty pages based on page count
@@ -137,7 +151,7 @@ export const create = mutation({
       shareId,
       bookTypeId: args.bookTypeId,
       pageOptionId: args.pageOptionId,
-      coverDesignId: args.coverDesignId,
+      themeId: args.themeId,
       pages,
       status: "draft",
       createdAt: now,
@@ -236,13 +250,13 @@ export const remove = mutation({
   },
 });
 
-// Update book selections (type, pages, cover)
+// Update book selections (type, pages, theme)
 export const updateSelections = mutation({
   args: {
     id: v.id("photoBooks"),
     bookTypeId: v.optional(v.id("bookTypes")),
     pageOptionId: v.optional(v.id("pageOptions")),
-    coverDesignId: v.optional(v.id("coverDesigns")),
+    themeId: v.optional(v.id("themes")),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
@@ -288,10 +302,10 @@ export const updateSelections = mutation({
       }
     }
 
-    if (args.coverDesignId) {
-      const coverDesign = await ctx.db.get(args.coverDesignId);
-      if (!coverDesign) throw new Error("Invalid cover design");
-      updates.coverDesignId = args.coverDesignId;
+    if (args.themeId) {
+      const theme = await ctx.db.get(args.themeId);
+      if (!theme) throw new Error("Invalid theme");
+      updates.themeId = args.themeId;
     }
 
     await ctx.db.patch(args.id, updates);

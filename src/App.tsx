@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 // Pages
 import { HomePage } from "@/pages/HomePage";
 import { PageOptionsPage } from "@/pages/PageOptionsPage";
-import { CoverSelectionPage } from "@/pages/CoverSelectionPage";
+import { ThemeSelectionPage } from "@/pages/ThemeSelectionPage";
 import { PhotoUploadPage } from "@/pages/PhotoUploadPage";
 import { BookEditorPage } from "@/pages/BookEditorPage";
 import { ViewBookPage } from "@/pages/ViewBookPage";
@@ -27,7 +27,7 @@ function OrderFlow() {
     case 2:
       return <PageOptionsPage />;
     case 3:
-      return <CoverSelectionPage />;
+      return <ThemeSelectionPage />;
     case 4:
       return <PhotoUploadPage />;
     case 5:

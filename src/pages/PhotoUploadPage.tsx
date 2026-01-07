@@ -21,7 +21,7 @@ export function PhotoUploadPage() {
   const {
     selectedBookTypeId,
     selectedPageOptionId,
-    selectedCoverDesignId,
+    selectedThemeId,
     photoBookId,
     setPhotoBookId,
     uploadedPhotos,
@@ -40,7 +40,8 @@ export function PhotoUploadPage() {
     selectedPageOptionId ? { id: selectedPageOptionId } : "skip",
   );
 
-  const maxPhotos = selectedPageOption?.pageCount ?? 50;
+  // Max photos is 6x the page count
+  const maxPhotos = (selectedPageOption?.pageCount ?? 50) * 6;
 
   const handleFileUpload = useCallback(
     async (files: FileList) => {
@@ -59,7 +60,7 @@ export function PhotoUploadPage() {
           if (
             !selectedBookTypeId ||
             !selectedPageOptionId ||
-            !selectedCoverDesignId
+            !selectedThemeId
           ) {
             throw new Error("Please complete all previous steps first");
           }
@@ -67,7 +68,7 @@ export function PhotoUploadPage() {
           const result = await createPhotoBook({
             bookTypeId: selectedBookTypeId,
             pageOptionId: selectedPageOptionId,
-            coverDesignId: selectedCoverDesignId,
+            themeId: selectedThemeId,
           });
 
           setPhotoBookId(result.id);
@@ -126,7 +127,7 @@ export function PhotoUploadPage() {
       setPhotoBookId,
       selectedBookTypeId,
       selectedPageOptionId,
-      selectedCoverDesignId,
+      selectedThemeId,
     ],
   );
 

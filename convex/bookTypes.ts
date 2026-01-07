@@ -35,6 +35,7 @@ export const create = mutation({
   args: {
     name: v.string(),
     aspectRatio: v.string(),
+    description: v.optional(v.string()),
     price: v.number(),
     imageUrl: v.string(),
     isActive: v.boolean(),
@@ -44,6 +45,7 @@ export const create = mutation({
     const id = await ctx.db.insert("bookTypes", {
       name: args.name,
       aspectRatio: args.aspectRatio,
+      description: args.description,
       price: args.price,
       imageUrl: args.imageUrl,
       isActive: args.isActive,
@@ -59,6 +61,7 @@ export const update = mutation({
     id: v.id("bookTypes"),
     name: v.optional(v.string()),
     aspectRatio: v.optional(v.string()),
+    description: v.optional(v.string()),
     price: v.optional(v.number()),
     imageUrl: v.optional(v.string()),
     isActive: v.optional(v.boolean()),

@@ -14,7 +14,7 @@ interface OrderState {
   // Selections
   selectedBookTypeId: Id<"bookTypes"> | null;
   selectedPageOptionId: Id<"pageOptions"> | null;
-  selectedCoverDesignId: Id<"coverDesigns"> | null;
+  selectedThemeId: Id<"themes"> | null;
 
   // Photo book ID after creation
   photoBookId: Id<"photoBooks"> | null;
@@ -29,7 +29,7 @@ interface OrderState {
   prevStep: () => void;
   setSelectedBookTypeId: (id: Id<"bookTypes"> | null) => void;
   setSelectedPageOptionId: (id: Id<"pageOptions"> | null) => void;
-  setSelectedCoverDesignId: (id: Id<"coverDesigns"> | null) => void;
+  setSelectedThemeId: (id: Id<"themes"> | null) => void;
   setPhotoBookId: (id: Id<"photoBooks"> | null) => void;
   setShareId: (shareId: string | null) => void;
   addUploadedPhoto: (photo: Photo) => void;
@@ -42,7 +42,7 @@ const initialState = {
   currentStep: 1,
   selectedBookTypeId: null,
   selectedPageOptionId: null,
-  selectedCoverDesignId: null,
+  selectedThemeId: null,
   photoBookId: null,
   shareId: null,
   uploadedPhotos: [],
@@ -62,7 +62,7 @@ export const useOrderStore = create<OrderState>((set) => ({
 
   setSelectedPageOptionId: (id) => set({ selectedPageOptionId: id }),
 
-  setSelectedCoverDesignId: (id) => set({ selectedCoverDesignId: id }),
+  setSelectedThemeId: (id) => set({ selectedThemeId: id }),
 
   setPhotoBookId: (id) => set({ photoBookId: id }),
 
