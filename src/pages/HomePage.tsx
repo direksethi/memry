@@ -4,7 +4,7 @@ import { useOrderStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Book, BookOpen, Check, ChevronRight } from "lucide-react";
+import { Book, Check, ChevronRight } from "lucide-react";
 
 export function HomePage() {
   const bookTypes = useQuery(api.bookTypes.listActive);

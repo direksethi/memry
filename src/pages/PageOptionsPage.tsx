@@ -95,7 +95,6 @@ export function PageOptionsPage() {
             ) : (
               pageOptions.map((option) => {
                 const isSelected = selectedPageOptionId === option._id;
-                const totalPrice = basePrice + option.additionalPrice;
 
                 return (
                   <Card
