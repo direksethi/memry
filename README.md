@@ -1,4 +1,4 @@
-# Memry Photobook
+# MemoryBkk Photobook
 
 A mobile-first web application for ordering custom photo books. Users can select book styles, choose page counts, pick cover designs, upload photos, and edit their photobook with a drag-and-drop editor.
 
@@ -81,7 +81,7 @@ npm run dev
 ## Project Structure
 
 ```
-memry/
+memorybkk/
 ├── convex/                 # Convex backend
 │   ├── schema.ts          # Database schema
 │   ├── admin.ts           # Admin authentication

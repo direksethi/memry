@@ -148,7 +148,7 @@ export function ViewBookPage() {
     try {
       await navigator.share({
         title: "Check out my Photobook!",
-        text: "I created a beautiful photobook on Memry Photobook",
+        text: "I created a beautiful photobook on Memorybkk",
         url: window.location.href,
       });
     } catch {
@@ -228,7 +228,7 @@ export function ViewBookPage() {
       <header className="px-4 py-4 bg-white/80 backdrop-blur border-b border-border sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1 className="text-lg font-serif font-bold text-foreground">
-            Memry Photobook
+            Memorybkk
           </h1>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={handleShare}>
@@ -298,7 +298,7 @@ export function ViewBookPage() {
                 <div className="text-center">
                   <p className="text-muted-foreground text-sm">Created with</p>
                   <p className="font-serif font-bold text-foreground mt-1">
-                    Memry Photobook
+                    Memorybkk
                   </p>
                 </div>
               </div>
@@ -342,9 +342,9 @@ export function ViewBookPage() {
       {/* Footer */}
       <footer className="py-4 text-center">
         <p className="text-xs text-muted-foreground">
-          © Memry Photobook • Create your own at{" "}
+          © Memorybkk • Create your own at{" "}
           <a href="/" className="underline">
-            memryphotobook.com
+            memorybkk.com
           </a>
         </p>
       </footer>

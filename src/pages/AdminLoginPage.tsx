@@ -82,7 +82,7 @@ export function AdminLoginPage() {
       <header className="px-4 py-6 bg-white border-b border-border">
         <div className="max-w-lg mx-auto text-center">
           <h1 className="text-2xl font-serif font-bold text-foreground">
-            Memry Photobook
+            Memorybkk
           </h1>
           <p className="text-sm text-muted-foreground mt-1">Admin Portal</p>
         </div>

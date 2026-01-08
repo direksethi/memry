@@ -165,7 +165,7 @@ export function PhotoUploadPage() {
       <header className="px-4 py-6 border-b border-border bg-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto text-center">
           <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground tracking-tight">
-            Memry Photobook
+            Memorybkk
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Create beautiful memories
